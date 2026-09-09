@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flight Line Comparatives</title>
+<style>
+
+  :root{
+    --bg:#f2f5f6;
+    --surface:#ffffff;
+    --surface-2:#e9eef0;
+    --ink:#152029;
+    --ink-muted:#54646d;
+    --line:#d2dbde;
+    --accent:#c96a2e;
+    --accent-ink:#5c2e10;
+    --accent-soft:#f4e0cf;
+    --teal:#1f6f78;
+    --teal-soft:#dcedee;
+    --good:#2f7d4f;
+    --good-soft:#dcf0e2;
+    --bad:#b6402a;
+    --bad-soft:#fbe3dd;
+    --shadow: 0 1px 2px rgba(21,32,41,.06), 0 6px 20px rgba(21,32,41,.06);
+    --radius: 7px;
+    --font-display:'Rajdhani','Trebuchet MS','Segoe UI',Arial,sans-serif;
+    --font-body:'IBM Plex Sans','Segoe UI','Helvetica Neue',Arial,sans-serif;
+    --font-mono:'IBM Plex Mono','Consolas','SFMono-Regular','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f171d;
+      --surface:#172128;
+      --surface-2:#1e2a32;
+      --ink:#e8eef1;
+      --ink-muted:#93a4ac;
+      --line:#2b3941;
+      --accent:#e8944e;
+      --accent-ink:#ffe2c4;
+      --accent-soft:#3a2a1c;
+      --teal:#5cc2cb;
+      --teal-soft:#173338;
+      --good:#5fbf85;
+      --good-soft:#163a26;
+      --bad:#e8836c;
+      --bad-soft:#3a201a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f171d;
+    --surface:#172128;
+    --surface-2:#1e2a32;
+    --ink:#e8eef1;
+    --ink-muted:#93a4ac;
+    --line:#2b3941;
+    --accent:#e8944e;
+    --accent-ink:#ffe2c4;
+    --accent-soft:#3a2a1c;
+    --teal:#5cc2cb;
+    --teal-soft:#173338;
+    --good:#5fbf85;
+    --good-soft:#163a26;
+    --bad:#e8836c;
+    --bad-soft:#3a201a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font-body);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 34px 34px;
+    background-position: -1px -1px;
+    background-attachment: fixed;
+    min-height:100vh;
+  }
+  h1,h2,h3{ font-family:var(--font-display); font-weight:700; letter-spacing:.2px; text-wrap:balance; margin:0; }
+  p{ line-height:1.55; }
+  .mono{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+
+  .app{ max-width:980px; margin:0 auto; padding:18px 18px 120px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:14px 18px; margin-bottom:16px;
+  }
+  .topbar-row{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-badge{
+    width:34px; height:34px; border-radius:6px; background:var(--accent); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+    font-weight:700; font-size:16px; flex:none;
+  }
+  .brand-text h1{ font-size:20px; }
+  .brand-text .sub{ font-size:12.5px; color:var(--ink-muted); font-family:var(--font-mono); }
+  .unit-tag{
+    font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
+    background:var(--surface-2); border:1px solid var(--line); padding:4px 9px; border-radius:20px; color:var(--ink-muted);
+    white-space:nowrap;
+  }
+
+  .navchips{ display:flex; gap:6px; overflow-x:auto; padding:12px 2px 2px; scrollbar-width:thin; }
+  .navchip{
+    flex:none; width:30px; height:30px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2);
+    color:var(--ink-muted); font-family:var(--font-mono); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform .12s ease;
+  }
+  .navchip:hover{ transform:translateY(-1px); }
+  .navchip.active{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .navchip.done::after{ content:''; }
+
+  /* ---------- Slide ---------- */
+  .slide{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:26px 28px 28px; position:relative; overflow:hidden;
+  }
+  .slide::before{
+    content:''; position:absolute; inset:0 0 auto 0; height:4px;
+    background:linear-gradient(90deg, var(--accent), var(--teal));
+  }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--teal); display:flex; align-items:center; gap:8px; margin-bottom:8px;
+  }
+  .eyebrow .dash{ width:16px; height:1px; background:var(--teal); display:inline-block; }
+  .slide h2{ font-size:27px; margin-bottom:6px; }
+  .slide .aim{ color:var(--ink-muted); font-size:15px; max-width:70ch; margin-bottom:16px; }
+
+  details.teacher{
+    margin:0 0 20px; border:1px dashed var(--line); border-radius:6px; background:var(--surface-2);
+  }
+  details.teacher summary{
+    cursor:pointer; list-style:none; padding:9px 14px; font-family:var(--font-mono); font-size:12px;
+    text-transform:uppercase; letter-spacing:.06em; color:var(--ink-muted); display:flex; align-items:center; gap:8px;
+  }
+  details.teacher summary::-webkit-details-marker{ display:none; }
+  details.teacher summary::before{ content:'▸'; transition:transform .15s; color:var(--accent); }
+  details.teacher[open] summary::before{ transform:rotate(90deg); }
+  .teacher-grid{ padding:2px 16px 14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px 18px; font-size:13.5px; color:var(--ink-muted); }
+  .teacher-grid b{ color:var(--ink); display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em; font-family:var(--font-mono); margin-bottom:2px; }
+
+  .body-copy{ font-size:15.5px; }
+  .body-copy > * + *{ margin-top:12px; }
+
+  /* ---------- Rule box ---------- */
+  .rulebox{ background:var(--teal-soft); border:1px solid var(--teal); border-radius:6px; padding:14px 16px; margin:10px 0; }
+  .rulebox b{ color:var(--teal); }
+  table.ruletable{ width:100%; border-collapse:collapse; margin-top:8px; font-size:14.5px; }
+  table.ruletable th, table.ruletable td{ text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); }
+  table.ruletable th{ font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-muted); }
+  table.ruletable td.eg{ font-family:var(--font-mono); color:var(--accent-ink); background:var(--accent-soft); border-radius:4px; }
+
+  /* ---------- Signs (lead-in) ---------- */
+  .signs-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:16px; margin:14px 0 20px; }
+  .sign{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .sign svg{ width:100px; height:100px; }
+  .sign .cap{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-muted); text-align:center; }
+  .qlist{ padding-left:0; margin:14px 0 0; list-style:none; }
+  .qlist li{ display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
+  .qlist li:first-child{ border-top:none; }
+  .qnum{ font-family:var(--font-mono); color:var(--accent); font-weight:600; flex:none; }
+
+  /* ---------- MCQ ---------- */
+  .mcq-item{ border:1px solid var(--line); border-radius:6px; padding:14px 16px; margin-bottom:12px; background:var(--surface); }
+  .mcq-q{ font-weight:600; margin-bottom:10px; font-size:15.5px; }
+  .mcq-options{ display:grid; gap:8px; }
+  .opt-btn{
+    text-align:left; padding:9px 12px; border-radius:5px; border:1px solid var(--line); background:var(--surface-2);
+    color:var(--ink); font-family:var(--font-body); font-size:14.5px; cursor:pointer; transition:.12s;
+  }
+  .opt-btn:hover{ border-color:var(--accent); }
+  .opt-btn.correct{ background:var(--good-soft); border-color:var(--good); color:var(--good); font-weight:600; }
+  .opt-btn.incorrect{ background:var(--bad-soft); border-color:var(--bad); color:var(--bad); }
+  .opt-btn:disabled{ cursor:default; }
+  .mcq-note{ margin-top:8px; font-size:13.5px; color:var(--ink-muted); display:none; }
+  .mcq-note.show{ display:block; }
+
+  /* ---------- Vocab match ---------- */
+  .match-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:10px;}
+  @media (max-width:640px){ .match-wrap{ grid-template-columns:1fr; } }
+  .match-col h4{ font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; color:var(--ink-muted); margin:0 0 8px; letter-spacing:.06em;}
+  .match-chip{
+    display:block; width:100%; text-align:left; padding:10px 12px; margin-bottom:8px; border-radius:5px;
+    border:1px solid var(--line); background:var(--surface-2); cursor:pointer; font-size:14.5px; color:var(--ink);
+  }
+  .match-chip.term{ font-weight:600; font-family:var(--font-mono); }
+  .match-chip.selected{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft) inset; }
+  .match-chip.matched{ background:var(--good-soft); border-color:var(--good); color:var(--good); cursor:default; }
+  .match-chip.wrongflash{ background:var(--bad-soft); border-color:var(--bad); }
+  .match-status{ font-family:var(--font-mono); font-size:13px; color:var(--ink-muted); margin-top:6px; }
+
+  /* ---------- Gapfill ---------- */
+  .gap-line{ margin:12px 0; font-size:15.5px; line-height:2.1; }
+  .gap-line .idx{ font-family:var(--font-mono); color:var(--accent); margin-right:6px; }
+  input.blank{
+    font-family:var(--font-mono); font-size:14.5px; border:none; border-bottom:2px solid var(--line);
+    background:transparent; color:var(--ink); padding:2px 4px; width:150px; text-align:center; outline:none;
+  }
+  input.blank:focus{ border-color:var(--accent); }
+  input.blank.correct{ border-color:var(--good); background:var(--good-soft); color:var(--good); font-weight:600; }
+  input.blank.incorrect{ border-color:var(--bad); background:var(--bad-soft); color:var(--bad); }
+  .hint{ font-family:var(--font-mono); font-size:13px; color:var(--ink-muted); }
+  .row-actions{ margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:var(--font-body); font-weight:600; font-size:14px; padding:9px 16px; border-radius:6px; border:1px solid var(--accent);
+    background:var(--accent); color:#fff; cursor:pointer; transition:.12s;
+  }
+  .btn:hover{ filter:brightness(1.06); }
+  .btn.secondary{ background:transparent; color:var(--accent); }
+  .btn.ghost{ background:transparent; color:var(--ink-muted); border-color:var(--line); }
+  .score-pill{ font-family:var(--font-mono); font-size:13px; background:var(--surface-2); border:1px solid var(--line); padding:6px 12px; border-radius:20px; color:var(--ink-muted); }
+
+  /* ---------- Problem (too/enough) ---------- */
+  .problem-card{ border:1px solid var(--line); border-radius:6px; padding:14px 16px; margin-bottom:14px; }
+  .given{ font-family:var(--font-mono); font-size:13.5px; color:var(--ink-muted); background:var(--surface-2); padding:8px 10px; border-radius:5px; margin-bottom:10px; }
+  .given div{ padding:2px 0; }
+  textarea.answer{
+    width:100%; min-height:44px; font-family:var(--font-body); font-size:14.5px; border:1px solid var(--line);
+    border-radius:5px; padding:9px 11px; color:var(--ink); background:var(--surface); resize:vertical;
+  }
+  .model{ display:none; margin-top:10px; padding:10px 12px; background:var(--good-soft); border:1px solid var(--good); border-radius:5px; font-size:14px; color:var(--good); }
+  .model.show{ display:block; }
+
+  /* ---------- Table ---------- */
+  .spec-table-wrap{ overflow-x:auto; margin:14px 0; }
+  table.spec{ border-collapse:collapse; width:100%; min-width:480px; font-size:14px; }
+  table.spec th, table.spec td{ border:1px solid var(--line); padding:8px 12px; text-align:left; }
+  table.spec thead th{ background:var(--surface-2); font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-muted); }
+  table.spec td.num, table.spec th.num{ font-family:var(--font-mono); text-align:right; }
+  table.spec tbody th{ font-family:var(--font-display); font-weight:700; background:var(--surface-2); }
+
+  /* ---------- toggle tokens (one exercise) ---------- */
+  .dialogue-block{ font-size:15.5px; line-height:2; margin:14px 0; }
+  .dialogue-block p{ margin:4px 0; }
+  .speaker{ font-family:var(--font-mono); color:var(--teal); font-weight:600; }
+  .gapmark{
+    display:inline-flex; gap:4px; vertical-align:middle; margin:0 2px;
+  }
+  .gm-btn{
+    font-family:var(--font-mono); font-size:11px; padding:3px 7px; border-radius:4px; border:1px solid var(--line);
+    background:var(--surface-2); cursor:pointer; color:var(--ink-muted);
+  }
+  .gm-btn.chosen{ border-color:var(--accent); color:var(--accent); font-weight:700; }
+  .gm-btn.right{ background:var(--good-soft); border-color:var(--good); color:var(--good); }
+  .gm-btn.wrong{ background:var(--bad-soft); border-color:var(--bad); color:var(--bad); }
+  .slot-index{ font-family:var(--font-mono); font-size:11px; color:var(--accent); vertical-align:super; }
+
+  /* ---------- Freer ---------- */
+  .prompt-list{ list-style:none; padding:0; margin:14px 0; }
+  .prompt-list li{ padding:10px 0; border-top:1px solid var(--line); display:flex; gap:10px; }
+  .prompt-list li:first-child{ border-top:none; }
+
+  /* ---------- Wrap up recap ---------- */
+  .recap-list{ list-style:none; padding:0; margin:0; }
+  .recap-list li{ display:flex; gap:10px; padding:8px 0; align-items:flex-start; }
+  .tick{ flex:none; width:20px; height:20px; border-radius:50%; background:var(--good-soft); color:var(--good); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+  .error-item{ border:1px solid var(--line); border-radius:6px; padding:10px 12px; margin-bottom:10px; }
+  .error-sent{ font-family:var(--font-mono); font-size:14px; color:var(--bad); }
+  .error-fix{ display:none; margin-top:6px; font-family:var(--font-mono); font-size:14px; color:var(--good); }
+  .error-fix.show{ display:block; }
+
+  /* ---------- Footer controls ---------- */
+  .controls{
+    position:fixed; left:0; right:0; bottom:0; background:var(--surface); border-top:1px solid var(--line);
+    box-shadow:0 -6px 18px rgba(0,0,0,.06); padding:10px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; z-index:10;
+  }
+  .controls-inner{ max-width:980px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .slidecount{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-muted); white-space:nowrap; }
+  .ctrl-btns{ display:flex; gap:8px; }
+
+  @media print{
+    .controls, .topbar, details.teacher{ display:none !important; }
+    .slide{ display:block !important; box-shadow:none; border:none; page-break-after:always; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <div class="brand-badge">✈</div>
+        <div class="brand-text">
+          <h1>Comparison — Flight Line English</h1>
+          <div class="sub">TECHNICAL ENGLISH 2 · UNIT 3, PP. 20–25 · AVIATION MAINTENANCE ADAPTATION</div>
+        </div>
+      </div>
+      <div class="unit-tag">Level B1+/B2 · ~90 min</div>
+    </div>
+    <div class="navchips" id="navchips"></div>
+  </div>
+
+  <main class="stage" id="stage"></main>
+
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <button class="btn ghost" id="prevBtn">← Previous</button>
+    <span class="slidecount" id="slidecount"></span>
+    <button class="btn" id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+function norm(s){ return (s||'').toString().trim().toLowerCase().replace(/[.!?]+$/,'').replace(/\s+/g,' '); }
+function matchesAny(val, answers){ const v = norm(val); return answers.some(a => norm(a) === v); }
+
+const EXERCISES = [
+
+// 0 -------------------------------------------------- TITLE / OBJECTIVES
+{
+  tag:'Lesson overview', title:'Comparison: describing and comparing technical specifications',
+  aim:'A working plan for the lesson — read this before you start, and refer back to it during feedback.',
+  interaction:'Whole class', timing:'5 min', type:'title',
+  data:{
+    mainAim:'By the end of the lesson, students will be able to accurately use comparative and superlative adjective forms — including <b>too + adjective + for</b> and <b>not + adjective + enough for</b> — to compare technical specifications and describe measurement or tolerance problems in an aviation maintenance context.',
+    subAims:[
+      'Vocabulary: specification terms — tolerance, clearance, torque, wingspan, payload, wheelbase, diameter, thickness, gauge, specification.',
+      'Functional language: polite phone/radio phrases for requesting, checking and confirming technical information.',
+      'Structure: <span class="mono">one / ones</span> as a substitute for a noun already mentioned, to avoid repetition.'
+    ],
+    assumed:'Students already know basic vehicle vocabulary and simple adjective forms from earlier units on cars. This lesson transfers that knowledge to tools, parts, ground equipment and aircraft.',
+    problems:[
+      ['Ss confuse -er/-est endings with more/most.', 'Elicit the syllable-counting rule with concept questions before controlled practice (slide 3–4).'],
+      ['Spelling changes (big→bigger, easy→easier) cause errors.', 'Highlight in the language-focus reference box; return to it in delayed error correction (final slide).'],
+      ['Word order in too...for / not enough for is reversed by Ss.', 'Board a slot sentence — too + ADJ + for + NOUN — and contrast it directly with not + ADJ + enough + for + NOUN.'],
+      ['"one" as a substitute pronoun is a new, abstract idea.', 'Use concept-check questions and a noticing task (slide 11) before any production.']
+    ]
+  }
+},
+
+// 1 -------------------------------------------------- LEAD-IN: SIGNS
+{
+  tag:'Lead-in', title:'What do these signs tell a technician?', aim:'Activate schema for limits and measurements before the reading/listening stages, and pre-teach "exceed / limit / clearance".',
+  interaction:'Pairs, then whole class', timing:'5–7 min', type:'signs',
+  data:{
+    signs:[
+      {shape:'circle', big:'25T', small:'MAX RAMP WEIGHT'},
+      {shape:'rect', big:'4.2m', small:'HANGAR DOOR CLEARANCE'},
+      {shape:'triangle', big:'!', small:'JET BLAST HAZARD'},
+      {shape:'circle', big:'8', small:'TOW SPEED km/h'},
+      {shape:'rect', big:'36m', small:'MAX WINGSPAN — BAY 3'}
+    ],
+    questions:[
+      'What does each sign tell a driver, technician or pilot?',
+      'What could go wrong if one of these limits is exceeded?',
+      'Which signs show a maximum, and which show a fixed measurement you must not go over?',
+      'Look at signs 2 and 5 — is the measurement a height, a width, a weight or a speed?'
+    ]
+  }
+},
+
+// 2 -------------------------------------------------- VOCAB MATCH
+{
+  tag:'Vocabulary', title:'Specification terms', aim:'Pre-teach the key nouns needed for the comparison texts and tasks that follow — meaning first, before any grammar work.',
+  interaction:'Individual, check in pairs', timing:'8 min', type:'match',
+  data:{
+    pairs:[
+      ['wingspan','The distance from one wingtip to the other.'],
+      ['clearance','The gap between the underside of a part and the surface or obstacle below it.'],
+      ['tolerance','The acceptable range a measurement can vary within before a part is out of limits.'],
+      ['diameter','The distance straight across a circular object, measured through its centre.'],
+      ['torque','A turning force used to tighten or loosen a fastener, measured in Newton-metres.'],
+      ['payload','The maximum weight of fuel, cargo and passengers an aircraft can carry.'],
+      ['wheelbase','The distance between the front and rear axles of a vehicle.'],
+      ['thickness','How deep a flat material is, measured from one face to the other.'],
+      ['specification','An official document stating the exact technical requirements of a part or system.'],
+      ['gauge','A standard unit for measuring the thickness of sheet metal or wire.']
+    ]
+  }
+},
+
+// 3 -------------------------------------------------- NOTICING (comparatives)
+{
+  tag:'Presentation · noticing', title:'Notice the pattern', aim:'Guide students to work out the comparative rules for themselves from examples, before the rules are confirmed on the next slide.',
+  interaction:'Pairs → open class', timing:'6 min', type:'mcq',
+  data:{
+    instructions:'Read each sentence and choose how the comparative was formed.',
+    items:[
+      {q:'"A torque wrench is longer than a spanner."', options:['Add -er','Double the final letter + -er','Change y → i, add -er','Use more + adjective','Irregular form'], correct:0},
+      {q:'"This tug is bigger than that one."', options:['Add -er','Double the final letter + -er','Change y → i, add -er','Use more + adjective','Irregular form'], correct:1},
+      {q:'"This drill is heavier than that one."', options:['Add -er','Double the final letter + -er','Change y → i, add -er','Use more + adjective','Irregular form'], correct:2},
+      {q:'"A rivet gun is more expensive than a hand riveter."', options:['Add -er','Double the final letter + -er','Change y → i, add -er','Use more + adjective','Irregular form'], correct:3},
+      {q:'"The technician\'s toolkit is better than mine."', options:['Add -er','Double the final letter + -er','Change y → i, add -er','Use more + adjective','Irregular form'], correct:4}
+    ]
+  }
+},
+
+// 4 -------------------------------------------------- LANGUAGE FOCUS 1 (rules) + drill
+{
+  tag:'Presentation · language focus', title:'Comparative adjectives', aim:'Confirm and consolidate the rules students noticed, then check quickly with single-word transformations.',
+  interaction:'Whole class (board), then pairs', timing:'8 min', type:'rules-and-gap',
+  data:{
+    rules:[
+      ['One-syllable adjectives','add -er','long → longer, high → higher'],
+      ['One-syllable, ends consonant-vowel-consonant','double the final consonant + -er','big → bigger, thin → thinner'],
+      ['Two-syllable adjectives ending in -y','change y → i, add -er','noisy → noisier, heavy → heavier'],
+      ['Adjectives of two or more syllables (not ending in -y)','use more / less + adjective','expensive → more expensive, dangerous → less dangerous'],
+      ['Irregular forms','—','good → better, bad → worse, far → farther/further']
+    ],
+    note:'<span class="mono">than</span> follows the comparative adjective: <i>"The van is higher than the car."</i>',
+    gapIntro:'Quick check — write the comparative form of each adjective.',
+    items:[
+      {before:'quiet →', after:'', answers:['quieter']},
+      {before:'thin →', after:'', answers:['thinner']},
+      {before:'safe →', after:'', answers:['safer']},
+      {before:'dangerous →', after:'', answers:['more dangerous']},
+      {before:'far →', after:'', answers:['farther','further']}
+    ]
+  }
+},
+
+// 5 -------------------------------------------------- CONTROLLED PRACTICE (comparatives in sentences)
+{
+  tag:'Controlled practice', title:'Complete the sentences', aim:'Practise comparative forms in full technical sentences, applying the rules from the previous slide with less support.',
+  interaction:'Individual, then check in pairs', timing:'8 min', type:'gapfill',
+  data:{
+    items:[
+      {before:'The new torque wrench is ', hint:'(accurate)', after:' than the old one.', answers:['more accurate']},
+      {before:'A Boeing 777 is ', hint:'(large)', after:' than an Airbus A320.', answers:['larger']},
+      {before:'This spanner is ', hint:'(heavy)', after:' than that one.', answers:['heavier']},
+      {before:'The turboprop engine is ', hint:'(noisy)', after:' than the turbofan engine.', answers:['noisier']},
+      {before:'Composite panels are ', hint:'(light)', after:' than aluminium panels.', answers:['lighter']},
+      {before:'The technician\'s report was ', hint:'(good)', after:' than expected.', answers:['better']},
+      {before:'Working at height is ', hint:'(dangerous)', after:' than working on the ground.', answers:['more dangerous']},
+      {before:'The new hangar is ', hint:'(far)', after:' from the terminal than the old one.', answers:['farther','further']}
+    ]
+  }
+},
+
+// 6 -------------------------------------------------- too...for / not enough for
+{
+  tag:'Presentation + practice', title:'Describing a problem: too / not enough', aim:'Present too + adj + for and not + adj + enough + for for describing measurements outside a limit or tolerance, then practise with realistic maintenance scenarios.',
+  interaction:'Whole class presentation, then individual/pairs practice', timing:'12 min', type:'toofor',
+  data:{
+    rule:'If something is the wrong size for a job, or above/below a limit, use:<br><b>too</b> + adjective + <b>for</b> + noun &nbsp; <span class="mono">(= more than the limit)</span><br><b>not</b> + adjective + <b>enough</b> + <b>for</b> + noun &nbsp; <span class="mono">(= less than required)</span>',
+    examples:['The panel is too heavy for one technician to lift.','The access hole is not wide enough for the tool.'],
+    items:[
+      {given:['Hangar door clearance required: 5.2 m','Aircraft tail height: 5.5 m'], answers:['The aircraft tail is too high for the hangar door.','The hangar door is not high enough for the aircraft tail.']},
+      {given:['Access panel width: 30 cm','Tool width: 35 cm'], answers:['The tool is too wide for the access panel.','The access panel is not wide enough for the tool.']},
+      {given:['Runway length available: 1800 m','Runway length required: 2400 m'], answers:['The runway is not long enough for the aircraft.']},
+      {given:['Bolt diameter: 8.2 mm','Hole diameter: 8.0 mm'], answers:['The bolt is too big for the hole.','The hole is not big enough for the bolt.']},
+      {given:['Torque wrench maximum: 40 Nm','Torque required: 45 Nm'], answers:['The torque wrench is not strong enough for this fastener.']},
+      {given:['Jack load limit: 2 tonnes','Nose gear weight: 2.3 tonnes'], answers:['The nose gear is too heavy for the jack.','The jack is not strong enough for the nose gear.']}
+    ]
+  }
+},
+
+// 7 -------------------------------------------------- LANGUAGE FOCUS 2 (superlatives)
+{
+  tag:'Presentation · language focus', title:'Superlative adjectives', aim:'Present the superlative forms, building directly on the comparative rules already established.',
+  interaction:'Whole class', timing:'6 min', type:'rulesonly',
+  data:{
+    rules:[
+      ['-er → -est','','long → longest, big → biggest, noisy → noisiest'],
+      ['more → most / less → least','','expensive → most expensive, noisy → least noisy'],
+      ['Irregular forms','','good → best, bad → worst, far → farthest/furthest'],
+      ['Use "the" before a superlative','','the fastest engine in the fleet, the largest of the four tools']
+    ],
+    note:'A superlative is usually followed by <span class="mono">in</span> (the fastest aircraft <i>in</i> the fleet) or <span class="mono">of</span> (the cheapest <i>of</i> the four tools).'
+  }
+},
+
+// 8 -------------------------------------------------- CONTROLLED PRACTICE — scanning table
+{
+  tag:'Controlled practice', title:'Scan the spec table', aim:'Practise reading a real-style specification table quickly and using comparatives/superlatives to report what it shows — a core maintenance-documentation skill.',
+  interaction:'Individual (timed scan), then check in pairs', timing:'8 min', type:'table-mcq',
+  data:{
+    table:{
+      headers:['','Weight','Max torque','Price','Warranty'],
+      rows:[
+        ['Wrench A','1.2 kg','200 Nm','$85','1 year'],
+        ['Wrench B','0.9 kg','150 Nm','$65','2 years'],
+        ['Wrench C','1.5 kg','340 Nm','$140','3 years'],
+        ['Wrench D','1.1 kg','200 Nm','$95','1 year']
+      ]
+    },
+    items:[
+      {q:'The lightest wrench is:', options:['A','B','C','D'], correct:1},
+      {q:'Wrench C is ___ Wrench A.', options:['cheaper than','more expensive than'], correct:1},
+      {q:'The wrench with the highest torque capacity is:', options:['A','B','C','D'], correct:2},
+      {q:'The best warranty is offered with:', options:['A','B','C','D'], correct:2},
+      {q:'Wrench D is ___ Wrench B.', options:['heavier than','lighter than'], correct:0},
+      {q:'The cheapest wrench is:', options:['A','B','C','D'], correct:1}
+    ]
+  }
+},
+
+// 9 -------------------------------------------------- much + comparative
+{
+  tag:'Controlled practice', title:'Emphasising a difference: much / a little / slightly', aim:'Add intensifiers to comparative structures so students can show the size of a difference, not just its direction.',
+  interaction:'Individual, then open class', timing:'6 min', type:'gapfill',
+  data:{
+    introHTML:'<div class="rulebox"><b>much / a lot</b> + comparative = a big difference &nbsp;·&nbsp; <b>a little / slightly</b> + comparative = a small difference.<br>e.g. <i>Wrench C is much more expensive than Wrench B. Wrench A is only slightly heavier than Wrench D.</i></div>Use the table from the previous slide.',
+    items:[
+      {before:'Wrench C is much ', hint:'(expensive)', after:' than Wrench B.', answers:['more expensive']},
+      {before:'Wrench B is much ', hint:'(light)', after:' than Wrench C.', answers:['lighter']},
+      {before:'Wrench C\'s warranty is much ', hint:'(long)', after:' than Wrench A\'s.', answers:['longer']},
+      {before:'Wrench A is only slightly ', hint:'(heavy)', after:' than Wrench D — the difference is only 0.1 kg.', answers:['heavier']}
+    ]
+  }
+},
+
+// 10 -------------------------------------------------- FUNCTIONAL LANGUAGE
+{
+  tag:'Presentation + practice', title:'Phone language: requesting and checking specifications', aim:'Present and practise polite functional phrases needed for a real workplace task — phoning a supplier to confirm part specifications.',
+  interaction:'Match individually, then pair role-play', timing:'10 min', type:'functional',
+  data:{
+    pairs:[
+      ['"Sorry, could you say that again, please?"','Asking someone to repeat'],
+      ['"Could you tell me the part number, please?"','Requesting information politely'],
+      ['"I\'d like to order a replacement gasket, please."','Saying what you want'],
+      ['"Would you like me to email you the spec sheet?"','Offering to do something'],
+      ['"So, just to confirm — you need two of these, is that right?"','Checking information']
+    ],
+    dialogueIntro:'Now complete this call to a parts supplier. Use the functions above.',
+    lines:[
+      {speaker:'Supplier', text:'Good morning, ACME Aviation Parts, how can I help?'},
+      {speaker:'Technician', before:'Hi, I ', hint:'(say what you want)', after:' to check the specification of a replacement bleed valve, please.', answers:["i'd like","id like","i would like"]},
+      {speaker:'Supplier', text:'Of course. Could you give me the part number?'},
+      {speaker:'Technician', text:'Yes, it\'s BV-2240.'},
+      {speaker:'Technician', before:'Sorry, ', hint:'(ask to repeat)', after:' you repeat the price, please?', answers:['could','would']},
+      {speaker:'Supplier', text:'It\'s $310, and it\'s currently in stock.'},
+      {speaker:'Technician', before:'OK. And ', hint:'(request information)', after:' you tell me the maximum operating temperature?', answers:['could','would']},
+      {speaker:'Supplier', text:'It\'s rated to 450°C.'},
+      {speaker:'Technician', before:'Great. ', hint:'(offer — supplier speaking)', after:' you like me to email a full spec sheet?', answers:['would']},
+      {speaker:'Technician', before:'Yes please. Just so I\'ve got this right — BV-2240, $310, rated to 450°C — ', hint:'(check information)', after:' that right?', answers:['is']},
+      {speaker:'Supplier', text:'Exactly right.'}
+    ]
+  }
+},
+
+// 11 -------------------------------------------------- ONE substitution
+{
+  tag:'Presentation + practice', title:'Avoiding repetition: one', aim:'Present "one" as a substitute for a countable noun already mentioned, then check understanding by spotting where it belongs (and where it does not).',
+  interaction:'Whole class CCQs, then individual noticing task', timing:'10 min', type:'onepron',
+  data:{
+    rule:'<span class="mono">one</span> replaces a countable noun that has already been mentioned, so the speaker does not have to repeat it — especially when choosing between two or more types.<br>e.g. <i>"Do you want the metric spanner or the imperial one?"</i> (one = spanner)',
+    ccqs:[
+      {q:'In "Which one do you want, the long one or the short one?", what does "one" replace?', options:['The noun mentioned earlier (e.g. spanner, bolt)','Nothing — it has no meaning'], correct:0},
+      {q:'Can "one" replace an uncountable noun, like "information"?', options:['Yes','No'], correct:1}
+    ],
+    intro:'A is ordering a torque wrench. Six positions are marked. Decide: does "one" belong at each position?',
+    dialogue:[
+      {speaker:'Customer', parts:[{t:'Hello, I\'d like to order a torque wrench, please.'}]},
+      {speaker:'Supplier', parts:[{t:'Certainly. We have two types: digital'},{gap:1,correct:true},{t:' and mechanical'},{gap:2,correct:true},{t:'. Which would you like?'}]},
+      {speaker:'Customer', parts:[{t:'What\'s the difference?'}]},
+      {speaker:'Supplier', parts:[{t:'We have two'},{gap:3,correct:false},{t:' types. The digital'},{gap:4,correct:true},{t:' shows the reading on a screen; the mechanical'},{gap:5,correct:true},{t:' uses a dial. Some technicians prefer the cheaper'},{gap:6,correct:true},{t:' because it doesn\'t need batteries.'}]},
+      {speaker:'Customer', parts:[{t:'I\'ll take the digital, please.'}]}
+    ]
+  }
+},
+
+// 12 -------------------------------------------------- FREER PRACTICE / PRODUCTION
+{
+  tag:'Freer practice / production', title:'Task: recommend a tow tractor', aim:'Freer, less controlled use of comparatives/superlatives and specification vocabulary in a realistic decision-making and report-writing task.',
+  interaction:'Pairs discuss, then write individually', timing:'15–20 min', type:'freer',
+  data:{
+    table:{
+      headers:['','Tug Alpha','Tug Bravo'],
+      rows:[
+        ['Length','3.4 m','4.1 m'],
+        ['Towing capacity','30 tonnes','45 tonnes'],
+        ['Top speed','20 km/h','28 km/h'],
+        ['Turning radius','3.8 m','5.2 m'],
+        ['Price','$62,000','$89,000'],
+        ['Fuel type','Diesel','Electric']
+      ]
+    },
+    prompts:[
+      'Compare the two tugs. Which has the greater towing capacity? Which is more manoeuvrable (a smaller turning radius)?',
+      'Which tug would you recommend for a small regional airport with narrow taxiways? Why?',
+      'Which tug would you recommend for a large cargo hub moving wide-body aircraft? Why?'
+    ],
+    writingHeadings:['Introduction','Comparison of the two tugs (use at least 3 comparative/superlative sentences)','Recommendation — "We recommend ... because ..."'],
+    model:'Introduction: Our team compared two tow tractors for the new contract.\n\nComparison: Tug Bravo is longer and much more powerful than Tug Alpha — it can tow 15 tonnes more. However, Tug Alpha has a smaller turning radius, so it is more manoeuvrable on narrow taxiways. Tug Alpha is also considerably cheaper than Tug Bravo.\n\nRecommendation: We recommend Tug Alpha for our airport because our taxiways are narrow and our aircraft are smaller than wide-body jets.'
+  }
+},
+
+// 13 -------------------------------------------------- REVIEW QUIZ
+{
+  tag:'Review', title:'Quick-fire review', aim:'Check retention of all target language from the lesson before moving to freer error correction and wrap-up.',
+  interaction:'Individual, or teams on the smartboard', timing:'8 min', type:'quiz',
+  data:{
+    items:[
+      {q:'"This spanner is ___ than that one." (heavy)', options:['more heavy','heavyer','heavier'], correct:2},
+      {q:'"A Boeing 747 is ___ than a Cessna 172." (big)', options:['bigger','more big','biggest'], correct:0},
+      {q:'"Titanium is ___ than steel for this part." (expensive)', options:['expensiver','more expensive','most expensive'], correct:1},
+      {q:'Irregular comparative of "good":', options:['gooder','better','best'], correct:1},
+      {q:'"The gap is ___ narrow ___ the tool." (too small)', options:['too / for','enough / for','more / than'], correct:0},
+      {q:'"The runway is not long ___ for this aircraft."', options:['for','than','enough'], correct:2},
+      {q:'Superlative of "noisy":', options:['noisyest','more noisy','noisiest'], correct:2},
+      {q:'"The An-225 was ___ aircraft ever built." (large)', options:['the largest','the more large','larger'], correct:0},
+      {q:'"Do you want the metric spanner or the imperial ___?"', options:['it','one','some'], correct:1},
+      {q:'Which phrase politely asks someone to repeat something?', options:['"I\'d like that, please."','"Sorry, could you say that again?"','"Would you like me to check?"'], correct:1}
+    ]
+  }
+},
+
+// 14 -------------------------------------------------- WRAP UP
+{
+  tag:'Feedback & wrap-up', title:'Delayed error correction & homework', aim:'Correct genuine-style errors as a class (delayed error correction), recap the lesson aims, and set a written task to consolidate.',
+  interaction:'Whole class', timing:'8 min', type:'wrapup',
+  data:{
+    recap:[
+      'Compare technical specifications using comparatives and superlatives',
+      'Describe a measurement/tolerance problem with too...for and not enough for',
+      'Use specification vocabulary: tolerance, clearance, torque, wingspan, payload...',
+      'Request and check technical information politely on the phone',
+      'Avoid repetition with one / ones'
+    ],
+    errors:[
+      ['This engine is more heavy than that one.','This engine is heavier than that one.'],
+      ['The Cessna is the more small aircraft of the two.','The Cessna is the smaller aircraft of the two.'],
+      ['The panel is too small enough for the bracket.','The panel is not big enough for the bracket. / The panel is too small for the bracket.'],
+      ['Do you want the metric spanner or the imperial?','Do you want the metric spanner or the imperial one?'],
+      ['Could you to repeat that, please?','Could you repeat that, please?']
+    ],
+    homework:'Write 100–120 words comparing two tools or pieces of equipment from your own workshop. Use at least four comparatives/superlatives and one example of too...for or not enough for.'
+  }
+}
+
+];
+
+// ---------------- render engine ----------------
+let current = 0;
+const stage = document.getElementById('stage');
+const navchips = document.getElementById('navchips');
+const slidecount = document.getElementById('slidecount');
+
+function headerHTML(ex){
+  return '<div class="eyebrow"><span class="dash"></span>'+ex.tag+'</div>'
+    + '<h2>'+ex.title+'</h2>'
+    + '<div class="aim">'+ex.aim+'</div>'
+    + '<details class="teacher"><summary>Teacher notes</summary><div class="teacher-grid">'
+    + '<div><b>Interaction</b>'+ex.interaction+'</div>'
+    + '<div><b>Timing</b>'+ex.timing+'</div>'
+    + '</div></details>';
+}
+
+function renderTitle(d){
+  return '<div class="body-copy">'
+    +'<div class="rulebox"><b>Main aim</b><br>'+d.mainAim+'</div>'
+    +'<div><b>Subsidiary aims</b><ul>'+d.subAims.map(s=>'<li>'+s+'</li>').join('')+'</ul></div>'
+    +'<div><b>Assumed knowledge</b><p>'+d.assumed+'</p></div>'
+    +'<div><b>Anticipated problems &amp; solutions</b>'
+    +'<table class="ruletable"><thead><tr><th>Problem</th><th>Solution</th></tr></thead><tbody>'
+    +d.problems.map(p=>'<tr><td>'+p[0]+'</td><td>'+p[1]+'</td></tr>').join('')
+    +'</tbody></table></div></div>';
+}
+
+function signSVG(s){
+  const stroke = 'var(--accent)';
+  if(s.shape==='circle'){
+    return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="'+stroke+'" stroke-width="6"/>'
+      +'<text x="50" y="48" text-anchor="middle" font-family="IBM Plex Mono" font-weight="700" font-size="22" fill="var(--ink)">'+s.big+'</text></svg>';
+  }
+  if(s.shape==='triangle'){
+    return '<svg viewBox="0 0 100 100"><polygon points="50,8 94,90 6,90" fill="none" stroke="'+stroke+'" stroke-width="6" stroke-linejoin="round"/>'
+      +'<text x="50" y="72" text-anchor="middle" font-family="IBM Plex Mono" font-weight="700" font-size="30" fill="var(--ink)">'+s.big+'</text></svg>';
+  }
+  return '<svg viewBox="0 0 100 100"><rect x="8" y="20" width="84" height="60" rx="4" fill="none" stroke="'+stroke+'" stroke-width="6"/>'
+    +'<text x="50" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-weight="700" font-size="18" fill="var(--ink)">'+s.big+'</text></svg>';
+}
+
+function renderSigns(d){
+  return '<div class="signs-grid">'+d.signs.map((s,i)=>'<div class="sign">'+signSVG(s)+'<div class="cap">'+(i+1)+'. '+s.small+'</div></div>').join('')+'</div>'
+    +'<ul class="qlist">'+d.questions.map((q,i)=>'<li><span class="qnum">Q'+(i+1)+'</span><span>'+q+'</span></li>').join('')+'</ul>';
+}
+
+function renderMatch(d){
+  const terms = d.pairs.map(p=>p[0]);
+  const defs = d.pairs.map(p=>p[1]);
+  const shuffledDefs = defs.map((v,i)=>[Math.random(),v,i]).sort((a,b)=>a[0]-b[0]);
+  const html = '<div class="match-wrap">'
+    +'<div class="match-col"><h4>Term</h4>'+terms.map((t,i)=>'<button type="button" class="match-chip term" data-side="term" data-idx="'+i+'">'+t+'</button>').join('')+'</div>'
+    +'<div class="match-col"><h4>Definition</h4>'+shuffledDefs.map(([,text,origIdx])=>'<button type="button" class="match-chip def" data-side="def" data-idx="'+origIdx+'">'+text+'</button>').join('')+'</div>'
+    +'</div><div class="match-status" id="matchStatus">0 of '+terms.length+' matched</div>';
+  return html;
+}
+
+function wireMatch(d){
+  let selTerm = null, selDef = null, matched = 0;
+  const total = d.pairs.length;
+  const status = document.getElementById('matchStatus');
+  document.querySelectorAll('.match-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      if(chip.classList.contains('matched')) return;
+      const side = chip.dataset.side;
+      if(side==='term'){
+        if(selTerm) selTerm.classList.remove('selected');
+        selTerm = chip; chip.classList.add('selected');
+      } else {
+        if(selDef) selDef.classList.remove('selected');
+        selDef = chip; chip.classList.add('selected');
+      }
+      if(selTerm && selDef){
+        if(selTerm.dataset.idx === selDef.dataset.idx){
+          selTerm.classList.remove('selected'); selDef.classList.remove('selected');
+          selTerm.classList.add('matched'); selDef.classList.add('matched');
+          matched++;
+          status.textContent = matched+' of '+total+' matched';
+          selTerm = null; selDef = null;
+          if(matched===total) status.textContent = 'All matched! Well done.';
+        } else {
+          selTerm.classList.add('wrongflash'); selDef.classList.add('wrongflash');
+          setTimeout(()=>{
+            selTerm.classList.remove('selected','wrongflash');
+            selDef.classList.remove('selected','wrongflash');
+            selTerm = null; selDef = null;
+          },500);
+        }
+      }
+    });
+  });
+}
+
+function renderMcqList(items, groupClass){
+  return items.map((it,i)=>{
+    return '<div class="mcq-item '+(groupClass||'')+'" data-i="'+i+'" data-correct="'+it.correct+'">'
+      +'<div class="mcq-q">'+(i+1)+'. '+it.q+'</div>'
+      +'<div class="mcq-options">'+it.options.map((o,oi)=>'<button type="button" class="opt-btn" data-oi="'+oi+'">'+o+'</button>').join('')+'</div>'
+      +(it.note? '<div class="mcq-note">'+it.note+'</div>' : '')
+      +'</div>';
+  }).join('');
+}
+
+function wireMcq(){
+  document.querySelectorAll('.mcq-item').forEach(card=>{
+    const correct = parseInt(card.dataset.correct,10);
+    card.querySelectorAll('.opt-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const oi = parseInt(btn.dataset.oi,10);
+        card.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+        if(oi===correct){ btn.classList.add('correct'); }
+        else {
+          btn.classList.add('incorrect');
+          card.querySelectorAll('.opt-btn')[correct].classList.add('correct');
+        }
+        const note = card.querySelector('.mcq-note');
+        if(note) note.classList.add('show');
+      });
+    });
+  });
+}
+
+function renderRulesTable(rules){
+  return '<table class="ruletable"><thead><tr><th>Rule</th><th>Change</th><th>Example</th></tr></thead><tbody>'
+    +rules.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="eg">'+r[2]+'</td></tr>').join('')
+    +'</tbody></table>';
+}
+
+function renderRulesAndGap(d){
+  let html = '<div class="rulebox"><b>Language focus</b>'+renderRulesTable(d.rules)+'<p style="margin-top:10px">'+d.note+'</p></div>';
+  html += '<p style="margin-top:16px"><b>'+d.gapIntro+'</b></p>';
+  html += d.items.map((it,i)=>'<div class="gap-line"><span class="idx">'+(i+1)+'</span>'+it.before+' <input class="blank" type="text" data-i="'+i+'" autocomplete="off"> '+it.after+'</div>').join('');
+  html += '<div class="row-actions"><button class="btn" id="checkGaps">Check answers</button><button class="btn secondary" id="showGaps">Show answers</button><span class="score-pill" id="gapScore"></span></div>';
+  return html;
+}
+
+function renderRulesOnly(d){
+  return '<div class="rulebox"><b>Language focus</b>'+renderRulesTable(d.rules)+'<p style="margin-top:10px">'+d.note+'</p></div>';
+}
+
+function renderGapfill(d){
+  let html = d.introHTML ? '<div style="margin-bottom:10px">'+d.introHTML+'</div>' : '';
+  html += d.items.map((it,i)=>'<div class="gap-line"><span class="idx">'+(i+1)+'</span>'+it.before+'<input class="blank" type="text" data-i="'+i+'" autocomplete="off"> <span class="hint">'+it.hint+'</span>'+it.after+'</div>').join('');
+  html += '<div class="row-actions"><button class="btn" id="checkGaps">Check answers</button><button class="btn secondary" id="showGaps">Show answers</button><span class="score-pill" id="gapScore"></span></div>';
+  return html;
+}
+
+function wireGapfill(items){
+  const inputs = Array.from(document.querySelectorAll('input.blank'));
+  document.getElementById('checkGaps').addEventListener('click', ()=>{
+    let correctCount = 0;
+    inputs.forEach(inp=>{
+      const i = parseInt(inp.dataset.i,10);
+      const ok = matchesAny(inp.value, items[i].answers);
+      inp.classList.remove('correct','incorrect');
+      inp.classList.add(ok?'correct':'incorrect');
+      if(ok) correctCount++;
+    });
+    document.getElementById('gapScore').textContent = correctCount+' / '+inputs.length+' correct';
+  });
+  document.getElementById('showGaps').addEventListener('click', ()=>{
+    inputs.forEach(inp=>{
+      const i = parseInt(inp.dataset.i,10);
+      inp.value = items[i].answers[0];
+      inp.classList.remove('incorrect'); inp.classList.add('correct');
+    });
+    document.getElementById('gapScore').textContent = 'Answers shown';
+  });
+}
+
+function renderToofor(d){
+  let html = '<div class="rulebox">'+d.rule+'</div>';
+  html += '<p style="margin:10px 0"><i>Examples:</i> '+d.examples.join(' &nbsp;·&nbsp; ')+'</p>';
+  html += d.items.map((it,i)=>{
+    return '<div class="problem-card"><div class="given">'+it.given.map(g=>'<div>'+g+'</div>').join('')+'</div>'
+      +'<textarea class="answer" data-i="'+i+'" placeholder="Write a sentence describing the problem..."></textarea>'
+      +'<div class="row-actions"><button class="btn secondary revealone" data-i="'+i+'">Show model answer</button></div>'
+      +'<div class="model" id="model'+i+'">'+it.answers.join('<br>')+'</div>'
+      +'</div>';
+  }).join('');
+  return html;
+}
+
+function wireToofor(){
+  document.querySelectorAll('.revealone').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.getElementById('model'+btn.dataset.i).classList.add('show');
+    });
+  });
+}
+
+function renderTableMcq(d){
+  let html = '<div class="spec-table-wrap"><table class="spec"><thead><tr>'+d.table.headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+  html += d.table.rows.map(r=>'<tr><th>'+r[0]+'</th>'+r.slice(1).map(c=>'<td class="num">'+c+'</td>').join('')+'</tr>').join('');
+  html += '</tbody></table></div>';
+  html += renderMcqList(d.items);
+  return html;
+}
+
+function renderFunctional(d){
+  let html = '<div class="match-wrap">'
+    +'<div class="match-col"><h4>Phrase</h4>'+d.pairs.map((p,i)=>'<button type="button" class="match-chip term" data-side="term" data-idx="'+i+'">'+p[0]+'</button>').join('')+'</div>'
+    +'<div class="match-col"><h4>Function</h4>'+d.pairs.map((p,i)=>[Math.random(),p[1],i]).sort((a,b)=>a[0]-b[0]).map(([,text,idx])=>'<button type="button" class="match-chip def" data-side="def" data-idx="'+idx+'">'+text+'</button>').join('')+'</div>'
+    +'</div><div class="match-status" id="matchStatus">0 of '+d.pairs.length+' matched</div>';
+  html += '<h3 style="margin-top:26px;font-size:18px">Complete the call</h3><p class="aim" style="margin-bottom:10px">'+d.dialogueIntro+'</p>';
+  html += '<div class="dialogue-block">'+d.lines.map((l,i)=>{
+    if(l.text) return '<p><span class="speaker">'+l.speaker+':</span> '+l.text+'</p>';
+    return '<p><span class="speaker">'+l.speaker+':</span> '+l.before+'<input class="blank" type="text" data-i="'+i+'" autocomplete="off">'+l.after+'</p>';
+  }).join('')+'</div>';
+  html += '<div class="row-actions"><button class="btn" id="checkGaps">Check answers</button><button class="btn secondary" id="showGaps">Show answers</button><span class="score-pill" id="gapScore"></span></div>';
+  return html;
+}
+
+function wireFunctional(d){
+  wireMatch(d);
+  const inputs = Array.from(document.querySelectorAll('.dialogue-block input.blank'));
+  document.getElementById('checkGaps').addEventListener('click', ()=>{
+    let correctCount = 0;
+    inputs.forEach(inp=>{
+      const i = parseInt(inp.dataset.i,10);
+      const ok = matchesAny(inp.value, d.lines[i].answers);
+      inp.classList.remove('correct','incorrect');
+      inp.classList.add(ok?'correct':'incorrect');
+      if(ok) correctCount++;
+    });
+    document.getElementById('gapScore').textContent = correctCount+' / '+inputs.length+' correct';
+  });
+  document.getElementById('showGaps').addEventListener('click', ()=>{
+    inputs.forEach(inp=>{
+      const i = parseInt(inp.dataset.i,10);
+      inp.value = d.lines[i].answers[0];
+      inp.classList.remove('incorrect'); inp.classList.add('correct');
+    });
+    document.getElementById('gapScore').textContent = 'Answers shown';
+  });
+}
+
+function renderOnepron(d){
+  let html = '<div class="rulebox">'+d.rule+'</div>';
+  html += renderMcqList(d.ccqs, 'ccq');
+  html += '<h3 style="margin-top:24px;font-size:18px">Spot the gap</h3><p class="aim" style="margin-bottom:10px">'+d.intro+'</p>';
+  html += '<div class="dialogue-block">'+d.dialogue.map(l=>{
+    const inner = l.parts.map(p=>{
+      if(p.t) return p.t;
+      return '<span class="gapmark" data-gap="'+p.gap+'" data-correct="'+p.correct+'"><span class="slot-index">['+p.gap+']</span><button type="button" class="gm-btn" data-v="yes">one?</button><button type="button" class="gm-btn" data-v="no">✕</button></span>';
+    }).join('');
+    return '<p><span class="speaker">'+l.speaker+':</span> '+inner+'</p>';
+  }).join('')+'</div>';
+  html += '<div class="row-actions"><button class="btn secondary" id="revealGaps">Show correct answers</button><span class="score-pill" id="gapScore"></span></div>';
+  return html;
+}
+
+function wireOnepron(){
+  document.querySelectorAll('.gapmark').forEach(mark=>{
+    const isCorrectYes = mark.dataset.correct === 'true';
+    mark.querySelectorAll('.gm-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        mark.querySelectorAll('.gm-btn').forEach(b=>b.classList.remove('chosen'));
+        btn.classList.add('chosen');
+      });
+    });
+  });
+  document.getElementById('revealGaps').addEventListener('click', ()=>{
+    let correct = 0; const marks = document.querySelectorAll('.gapmark');
+    marks.forEach(mark=>{
+      const isCorrectYes = mark.dataset.correct === 'true';
+      const chosen = mark.querySelector('.gm-btn.chosen');
+      mark.querySelectorAll('.gm-btn').forEach(b=>b.classList.remove('right','wrong'));
+      const rightBtn = mark.querySelector('.gm-btn[data-v="'+(isCorrectYes?'yes':'no')+'"]');
+      rightBtn.classList.add('right');
+      if(chosen && ((chosen.dataset.v==='yes')===isCorrectYes)) correct++;
+      else if(chosen) chosen.classList.add('wrong');
+    });
+    document.getElementById('gapScore').textContent = correct+' / '+marks.length+' correct ("one" belongs at 1,2,4,5,6 — not 3)';
+  });
+}
+
+function renderFreer(d){
+  let html = '<div class="spec-table-wrap"><table class="spec"><thead><tr>'+d.table.headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+  html += d.table.rows.map(r=>'<tr><th>'+r[0]+'</th>'+r.slice(1).map(c=>'<td class="num">'+c+'</td>').join('')+'</tr>').join('');
+  html += '</tbody></table></div>';
+  html += '<ul class="prompt-list">'+d.prompts.map((p,i)=>'<li><span class="qnum">'+(i+1)+'</span><span>'+p+'</span></li>').join('')+'</ul>';
+  html += '<h3 style="margin-top:22px;font-size:18px">Writing task</h3><ol>'+d.writingHeadings.map(h=>'<li>'+h+'</li>').join('')+'</ol>';
+  html += '<textarea class="answer" id="freerWrite" style="min-height:130px" placeholder="Write your report here..."></textarea>';
+  html += '<div class="row-actions"><button class="btn secondary" id="revealModel">Show model answer</button></div>';
+  html += '<div class="model" id="freerModel" style="white-space:pre-line">'+d.model+'</div>';
+  return html;
+}
+
+function wireFreer(){
+  document.getElementById('revealModel').addEventListener('click', ()=>{
+    document.getElementById('freerModel').classList.add('show');
+  });
+}
+
+function renderQuiz(d){
+  let html = '<div id="quizScoreWrap" class="row-actions" style="margin-bottom:6px"><span class="score-pill" id="quizScore">Score: 0 / '+d.items.length+'</span><button class="btn ghost" id="resetQuiz">Reset quiz</button></div>';
+  html += renderMcqList(d.items, 'quizq');
+  return html;
+}
+
+function wireQuiz(total){
+  let score = 0;
+  const scoreEl = document.getElementById('quizScore');
+  document.querySelectorAll('.quizq').forEach(card=>{
+    const correct = parseInt(card.dataset.correct,10);
+    card.querySelectorAll('.opt-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const oi = parseInt(btn.dataset.oi,10);
+        card.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+        if(oi===correct){ btn.classList.add('correct'); score++; }
+        else { btn.classList.add('incorrect'); card.querySelectorAll('.opt-btn')[correct].classList.add('correct'); }
+        scoreEl.textContent = 'Score: '+score+' / '+total;
+      });
+    });
+  });
+  document.getElementById('resetQuiz').addEventListener('click', ()=>{ showSlide(current); });
+}
+
+function renderWrapup(d){
+  let html = '<div><b>Aims achieved today — students can now:</b><ul class="recap-list">'
+    +d.recap.map(r=>'<li><span class="tick">✓</span><span>'+r+'</span></li>').join('')+'</ul></div>';
+  html += '<h3 style="margin-top:22px;font-size:18px">Delayed error correction</h3><p class="aim" style="margin-bottom:10px">These sentences contain errors typical of this lesson\'s target language. Correct them as a class.</p>';
+  html += d.errors.map((e,i)=>'<div class="error-item"><div class="error-sent">'+(i+1)+'. '+e[0]+'</div><button class="btn secondary revealfix" data-i="'+i+'" style="margin-top:8px">Show correction</button><div class="error-fix" id="fix'+i+'">→ '+e[1]+'</div></div>').join('');
+  html += '<div class="rulebox" style="margin-top:22px"><b>Homework</b><p style="margin-top:6px">'+d.homework+'</p></div>';
+  return html;
+}
+
+function wireWrapup(){
+  document.querySelectorAll('.revealfix').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ document.getElementById('fix'+btn.dataset.i).classList.add('show'); });
+  });
+}
+
+function showSlide(i){
+  current = i;
+  const ex = EXERCISES[i];
+  let body = '';
+  switch(ex.type){
+    case 'title': body = renderTitle(ex.data); break;
+    case 'signs': body = renderSigns(ex.data); break;
+    case 'match': body = renderMatch(ex.data); break;
+    case 'mcq': body = (ex.data.instructions? '<p class="aim" style="margin-bottom:12px">'+ex.data.instructions+'</p>':'') + renderMcqList(ex.data.items); break;
+    case 'rules-and-gap': body = renderRulesAndGap(ex.data); break;
+    case 'rulesonly': body = renderRulesOnly(ex.data); break;
+    case 'gapfill': body = renderGapfill(ex.data); break;
+    case 'toofor': body = renderToofor(ex.data); break;
+    case 'table-mcq': body = renderTableMcq(ex.data); break;
+    case 'functional': body = renderFunctional(ex.data); break;
+    case 'onepron': body = renderOnepron(ex.data); break;
+    case 'freer': body = renderFreer(ex.data); break;
+    case 'quiz': body = renderQuiz(ex.data); break;
+    case 'wrapup': body = renderWrapup(ex.data); break;
+  }
+  stage.innerHTML = '<section class="slide">'+headerHTML(ex)+'<div class="body-copy">'+body+'</div></section>';
+
+  switch(ex.type){
+    case 'match': wireMatch(ex.data); break;
+    case 'mcq': wireMcq(); break;
+    case 'rules-and-gap': wireMcq(); wireGapfill(ex.data.items); break;
+    case 'gapfill': wireGapfill(ex.data.items); break;
+    case 'toofor': wireToofor(); break;
+    case 'table-mcq': wireMcq(); break;
+    case 'functional': wireFunctional(ex.data); break;
+    case 'onepron': wireMcq(); wireOnepron(); break;
+    case 'freer': wireFreer(); break;
+    case 'quiz': wireQuiz(ex.data.items.length); break;
+    case 'wrapup': wireWrapup(); break;
+  }
+
+  updateNav();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function updateNav(){
+  document.querySelectorAll('.navchip').forEach(c=>c.classList.toggle('active', parseInt(c.dataset.i,10)===current));
+  slidecount.textContent = 'Slide '+(current+1)+' of '+EXERCISES.length;
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').textContent = current===EXERCISES.length-1 ? 'Restart ⟲' : 'Next →';
+}
+
+navchips.innerHTML = EXERCISES.map((ex,i)=>'<button type="button" class="navchip" data-i="'+i+'" title="'+ex.title+'">'+i+'</button>').join('');
+navchips.querySelectorAll('.navchip').forEach(c=>c.addEventListener('click', ()=>showSlide(parseInt(c.dataset.i,10))));
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{ if(current>0) showSlide(current-1); });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ showSlide(current===EXERCISES.length-1 ? 0 : current+1); });
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') document.getElementById('nextBtn').click();
+  if(e.key==='ArrowLeft') document.getElementById('prevBtn').click();
+});
+
+showSlide(0);
+})();
+</script>
+</body>
+</html>
